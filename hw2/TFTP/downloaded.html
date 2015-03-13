@@ -1,0 +1,138 @@
+<head>
+<title>Digital Clock</title>
+<script type="text/javascript">
+
+
+//t is a  global variable
+var t;
+function displayTime() {
+   var element = document.getElementById("clock");
+   var now = new Date();
+   element.innerHTML = now.toLocaleTimeString();
+   t = setTimeout("displayTime()",1000);  //1000msec is 1sec
+   return;
+   }
+
+//these are global variables
+var x = 450;
+var y = 220;
+
+function positionClock() {
+   var obj=document.getElementById("clock");
+   if (!obj) alert('clock not there yet');
+   obj.style.top=y;
+   obj.style.left=x;
+   return;
+}
+
+ function move(left,top) {                         // left is x coord; top is y coord
+	var obj = document.getElementById("clock");
+	x = x + (left * 10);
+	y = y + (top * 10);
+	obj.style.top = y;
+	obj.style.left = x;
+	return;
+ }
+ 
+function hideMe() {
+	var obj = document.getElementById("clock");
+        obj.style.visibility="hidden";
+//	obj.style.display="none";
+	return;
+}
+
+function showMe() {
+	var obj = document.getElementById("clock");
+        obj.style.visibility="visible";
+//	obj.style.display="block";
+	return;
+}
+
+function surpriseMe(left,top) {
+var obj = document.getElementById("clock");
+x = parseInt(Math.random()*(window.innerWidth-150));
+y = parseInt(Math.random()*(window.innerHeight-100));
+obj.style.top = y;
+obj.style.left = x;
+
+
+//Write me!  Find the relevant screen properties of height and width to move the
+// clock a random amount (x and y) not to exceed the screen boundaries. 
+	return;
+}
+
+
+</script>
+
+
+<style>
+.center 
+{
+   margin-left:auto;
+   margin-right:auto;
+   text-align:center;
+   }
+   
+#clock
+{
+	position:absolute;
+	width:100;
+	height:2ex;
+	font: bold 12pt sans;
+	background:#CCFFCC;
+	padding:10px;
+	border:solid blue 2px;
+	border-radius:10px;
+   }
+</style>
+</head>
+
+<body onload="positionClock()">
+
+<h1 class="center">Digital Clock</h1>
+
+<form name=form1>
+<table class="center">
+<tr>
+<th colspan="4"><input type="button" name="up" value="Up" onclick="move(0,-1)"></th>
+</tr>
+
+<tr>
+<td>
+<input type="button" name="left" value="Left" onclick="move(-1,0)" >
+</td>
+
+<td>
+<input type="button" name="hide" value="Hide" onclick="hideMe()" >
+</td>
+
+<td>
+<input type="button" name="show" value="Show" onclick="showMe()" >
+</td>
+
+<td>
+<input type="button" name="right" value="Right" onclick="move(1,0)" >
+</td>
+</tr>
+
+<tr>
+<th colspan="4"><input type="button" name="down" value="Down" onclick="move(0,1)" ></th>
+</tr>
+
+</table>
+</form>
+
+
+<form name="form2">
+<table class="center"><tr><td>
+<input type="button" name="surprise" value="Surprise me" onclick="surpriseMe()" >
+</td></tr>
+</table>
+</form>
+
+
+<div id="clock">
+<script type="text/javascript">displayTime()</script>
+</div>
+</body>
+</html>
