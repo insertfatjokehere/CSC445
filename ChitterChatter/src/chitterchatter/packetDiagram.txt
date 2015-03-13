@@ -1,0 +1,189 @@
+   Type         code #  Format without header
+
+               2 bytes   String        String
+               -------- ------------ ----------
+send packet   |   01   |  username  |  message |
+               -------- ------------ ----------
+
+               2 bytes        String
+               -------- ------------ 
+leave pack    |   02   |  Username  |
+               -------- ------------
+        
+               2 bytes        String
+               -------- ------------------------- 
+leave chat    |   02   | ***Username has quit*** |
+               -------- -------------------------
+
+                2 bytes   String
+               -------- --------------------------------
+join succ     |   03   | ***username has joined chat*** | 
+               -------- --------------------------------  
+
+                2 bytes   String
+               -------- ----------
+join chat     |   03   | username | 
+               -------- ----------  
+
+               2 bytes
+               --------
+print req     |   04   | 
+               --------
+
+               2 bytes  # of messages
+               -------- ------- ------------- ----------- ------------- ----------- ---------
+print mess    |   04   |  xx   |   username  |  message  |  username   |  message  |   ..... |
+               -------- ------- ------------- ----------- ------------- ----------- ---------
+
+               2 bytes      String              String
+               ----------- ------------- --------------------------------------------
+start vote    |   05/16   |  username   |  ***vote to kick username is in session*** |
+               ----------- ------------- --------------------------------------------
+
+// 16 is used for the servers to know who the judge is
+// look below 
+
+               2 bytes     t/f      String
+               -------- --------- ----------
+vote kick     |   06   |  00/01  | username |
+               -------- --------- ----------
+
+               2 bytes   2 bytes     String 
+               -------- --------- ------------
+update users  |   07   |  00/01  |  username  |
+               -------- --------- ------------
+
+// for update users, 00 means add, while 01 is to remove
+
+                2 bytes    String      t / f
+               -------- ----------- -----------
+vote result   |   08   | 00 / 01   | username  |
+               -------- ----------- ----------
+ 
+               2 bytes
+               --------
+ping test     |   09   |  
+               --------
+
+                2 bytes
+               --------
+ping ack      |   10   |
+               --------
+
+               2 bytes          2 bytes
+               -------- -----------------------
+request pack  |   11   |   xx (packet number)  | 
+               -------- -----------------------
+
+                2 bytes         2 bytes            String        String
+               -------- ----------------------- ------------- -------------
+send request  |   12   |   xx (packet number)  |   username  |   message   |
+               -------- ----------------------- ------------- -------------
+
+                2 bytes
+               --------
+get latest    |   13   |
+               -------- 
+
+               2 bytes     String
+               -------- ------------ ------------
+send latest   |   14   |  username  |   message  |
+               -------- ------------ ------------
+
+                2 bytes                              String
+               -------- -----------------------------------------------------------------------
+unsucc join   |   15   | ***Could not join chat, either username is taken or you're banned*** |
+               -------- -----------------------------------------------------------------------
+
+
+                2 bytes                   String
+               -------- --------------------------------------------------
+judge session |   16   |  ***Vote for kicking username is in session***   |
+               -------- --------------------------------------------------
+
+
+                2 bytes   yes      no 
+               -------- -------- --------
+result count  |   17   |  ints  |  ints  |
+               -------- -------- --------
+
+                2 bytes    String       String
+               -------- ------------ -----------
+checksum      |   18   |  username  |   .....   |
+               -------- ------------ -----------
+
+// checksum returns the order of usernames that are stored on the servers
+
+               2 bytes
+               --------
+get users     |   19   | 
+               --------
+
+               2 bytes     String        String
+               -------- -------------- ----------
+send users    |   20   |   username   |  .....   | 
+               -------- -------------- ----------
+
+                2 bytes
+               -------- 
+success join  |   21   |
+               -------- 
+
+//------------------------------------------------------------------------
+the next 2 packets are the same as 19 & 20, but used to get usernames for
+the gui to pull the usernames and allow the user to kick someone
+//------------------------------------------------------------------------
+
+               2 bytes
+               --------
+get users     |   22   | 
+               --------
+
+               2 bytes     String        String
+               -------- -------------- ----------
+send users    |   23   |   username   |  .....   | 
+               -------- -------------- ----------
+
+//---------------------------------------------------------------------
+the next 2 packets are the same as 19 & 20, but used to get usernames 
+for initial startup for the servers
+//---------------------------------------------------------------------
+
+               2 bytes
+               --------
+get users     |   24   | 
+               --------
+
+               2 bytes     String        String
+               -------- -------------- ----------
+send users    |   25   |   username   |  .....   | 
+               -------- -------------- ----------
+
+
+               2 bytes
+               --------
+heartbeat req |   26   |  
+               --------
+
+                2 bytes
+               --------
+heartbeat ack |   27   |
+               --------
+
+
+                2 bytes
+               --------
+server getchat|   28   |
+               --------
+
+
+               2 bytes  # of messages
+               -------- ------- ------------- ----------- ------------- ----------- ---------
+send chat     |   29   |  xx   |   username  |  message  |  username   |  message  |   ..... |
+               -------- ------- ------------- ----------- ------------- ----------- ---------
+
+               2 bytes  # of messages
+               -------- ------- ------------- ----------- ------------- ----------- ---------
+update chat   |   30   |  xx   |   username  |  message  |  username   |  message  |   ..... |
+               -------- ------- ------------- ----------- ------------- ----------- ---------
+
