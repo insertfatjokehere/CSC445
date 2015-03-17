@@ -31,16 +31,17 @@ import java.net.InetAddress;
 
 public class TFTPPacket {
 
-    public static final int readCode = 1;
-    public static final int dataCode = 3;
-    public static final int ackCode = 4;
-    public static final int errorCode = 5;
-    public static final int maxPacketSize = 512;
+    public static final short termCode = 6;
+    public static final short readCode = 1;
+    public static final short dataCode = 3;
+    public static final short ackCode = 4;
+    public static final short errorCode = 5;
+    public static final short maxPacketSize = 512;
     public static final String[] errorMess = {"Error in transfer", "File not found.", "Access violation.", "Disk full or allocation exceeded.",
         "Illegal TFTP operation.", "Unknown transfer ID.", "File already exists.", "No such user."};
-    private int type;
+//    private short type;
     int port;
-    int blockNum;
+    short blockNum;
     String urlRequest;
     InetAddress address;
     DatagramPacket dataPacket;
@@ -54,7 +55,7 @@ public class TFTPPacket {
 //	}
     public TFTPPacket readPacket(String urlFromClient, InetAddress inet, int port) {
         TFTPPacket request = new TFTPPacket();
-        request.type = readCode;
+//        request.type = readCode;
         request.urlRequest = urlFromClient;
         // the 4 counts the opcode and the 2 other bytes in the RRQ request
         request.dataBytes = new byte[request.urlRequest.length()
@@ -63,8 +64,8 @@ public class TFTPPacket {
                 + 2];
 
         // this takes care of the first 2 bytes
-        request.dataBytes[0] = 0;
-        request.dataBytes[1] = (byte) request.type;
+        request.dataBytes[0] = (byte)(readCode & 0xff);
+        request.dataBytes[1] = (byte)((readCode >> 8) & 0xff);
 
         // this takes care of the filename and the next byte
         System.arraycopy(request.urlRequest.getBytes(), 0, request.dataBytes, 2, request.urlRequest.length());
@@ -109,49 +110,61 @@ public class TFTPPacket {
     
      */
 
-    public TFTPPacket ackPacket(int blockNum, InetAddress inet, int port) {
+    public TFTPPacket ackPacket(short blockNum, InetAddress inet, int port) {
         TFTPPacket ack = new TFTPPacket();
-        ack.type = ackCode;
+//        ack.type = ackCode;
         ack.dataBytes = new byte[4];
-        ack.dataBytes[0] = 0;
-        ack.dataBytes[1] = (byte) ack.type;
-        ack.dataBytes[3] = (byte) blockNum;
+        ack.dataBytes[0] = (byte)(ackCode & 0xff);
+        ack.dataBytes[1] = (byte)((ackCode >> 8) & 0xff);
+        ack.dataBytes[2] = (byte)(blockNum & 0xff);
+        ack.dataBytes[3] = (byte)((blockNum >> 8) & 0xff);
         ack.dataPacket = new DatagramPacket(ack.dataBytes, ack.dataBytes.length, inet, port);
 
         return ack;
     }
 
-    public TFTPPacket dataPacket(int blockNum, InetAddress inet, int port, byte[] info) {
+    public TFTPPacket dataPacket(short blockNum, InetAddress inet, int port, byte[] info) {
         TFTPPacket dataP = new TFTPPacket();
-        dataP.type = dataCode;
+//       dataP.type = dataCode;
         dataP.dataBytes = new byte[info.length + 4];
-        dataP.dataBytes[0] = 0;
-        dataP.dataBytes[1] = (byte) dataP.type;
-        dataP.dataBytes[3] = (byte) blockNum;
+        dataP.dataBytes[0] = (byte)(dataCode & 0xff);
+        dataP.dataBytes[1] = (byte)((dataCode >> 8) & 0xff);
+        dataP.dataBytes[2] = (byte)(blockNum & 0xff);
+        dataP.dataBytes[3] = (byte)((blockNum >> 8) & 0xff);
         System.arraycopy(info, 0, dataP.dataBytes, 4, info.length);
 
         dataP.dataPacket = new DatagramPacket(dataP.dataBytes, dataP.dataBytes.length, inet, port);
         return dataP;
     }
 
-    public TFTPPacket terminationPacket(int blockNum, InetAddress inet, int port, byte[] info) {
-        TFTPPacket term = new TFTPPacket().dataPacket(blockNum, inet, port, info);
-       // a -1 type is used to indicate the last packet
-        // block number needs to be the same since it needs to check
-        term.type = -1;
-        term.dataBytes[1] = (byte) term.type;
+    public TFTPPacket terminationPacket(short blockNum, InetAddress inet, int port, byte[] info) {
+//        TFTPPacket term = new TFTPPacket().dataPacket(blockNum, inet, port, info);
+//       // a -1 type is used to indicate the last packet
+//        // block number needs to be the same since it needs to check
+//        term.type = -1;
+//        term.dataBytes[1] = (byte) term.type;
+        
+        TFTPPacket term = new TFTPPacket();
+        term.dataBytes = new byte[info.length + 4];
+        term.dataBytes[0] = (byte)(termCode & 0xff);
+        term.dataBytes[1] = (byte)((termCode >> 8) & 0xff);
+        term.dataBytes[2] = (byte)(blockNum & 0xff);
+        term.dataBytes[3] = (byte)((blockNum >> 8) & 0xff);
+        System.arraycopy(info, 0, term.dataBytes, 4, info.length);
+
+        term.dataPacket = new DatagramPacket(term.dataBytes, term.dataBytes.length, inet, port);
 
         return term;
     }
 
-    public TFTPPacket errorPacket(int errorNum, InetAddress inet, int port) {
+    public TFTPPacket errorPacket(short errorNum, InetAddress inet, int port) {
         TFTPPacket error = new TFTPPacket();
-        error.type = errorCode;
+//        error.type = errorCode;
         error.dataBytes = new byte[maxPacketSize];
-        error.dataBytes[0] = 0;
-        error.dataBytes[1] = (byte) error.type;
-        error.dataBytes[2] = 0;
-        error.dataBytes[3] = (byte) errorNum;
+        error.dataBytes[0] = (byte)(errorCode & 0xff);
+        error.dataBytes[1] = (byte)((errorCode >> 8) & 0xff);
+        error.dataBytes[2] = (byte)(errorNum & 0xff);
+        error.dataBytes[3] = (byte)((errorNum >> 8) & 0xff);
         System.arraycopy(errorMess[errorNum].getBytes(), 0, error.dataBytes, 4, errorMess[errorNum].length());
         error.dataBytes[errorMess[errorNum].length() + 4] = 0;
         
